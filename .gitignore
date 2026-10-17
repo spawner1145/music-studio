@@ -1,0 +1,66 @@
+# Gradle caches and generated build output
+.gradle/
+build/
+out/
+bin/
+*.class
+*.jar
+!/gradle/wrapper/gradle-wrapper.jar
+
+# Development game instances: worlds, imported audio, exports and screenshots
+/run/
+/run-server/
+/run-gametest/
+/runs/
+
+# Local game paths; share gradle.properties.example instead
+/gradle.properties
+/local.properties
+
+# Downloaded reference repository and task backups
+/LDLib2-1.21/
+/.task-backups/
+
+# Local FFmpeg binaries; keep tools/README.md and license notices
+/tools/*.exe
+/tools/*.dll
+/tools/ffmpeg
+/tools/ffprobe
+
+# IDE and editor state
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+*~
+
+# Logs, crash reports, profiler output and temporary files
+*.log
+*.log.*
+/logs/
+/crash-reports/
+hs_err_pid*
+replay_pid*
+*.hprof
+*.jfr
+*.tmp
+*.bak
+*.installing
+
+# Local environment files (example templates can be committed)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini

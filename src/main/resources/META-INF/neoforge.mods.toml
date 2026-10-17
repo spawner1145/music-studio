@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+[[mixins]]
+config="musicstudio.mixins.json"
+[[mods]]
+modId="musicstudio"
+version="0.5.16"
+displayName="Music Studio"
+authors="Music Studio"
+description='''LDLib2 music workstation, live Minecraft sound catalog and music blueprints.'''
+[[dependencies.musicstudio]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.252,21.2)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.musicstudio]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1,1.21.2)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.musicstudio]]
+modId="ldlib2"
+type="required"
+versionRange="[2.2.42,2.3)"
+ordering="AFTER"
+side="BOTH"

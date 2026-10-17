@@ -1,0 +1,1 @@
+{"required": true, "minVersion": "0.8", "package": "dev.musicstudio.mixin", "compatibilityLevel": "JAVA_21", "mixins": ["JukeboxMixin", "JukeboxDurationMixin", "NoteBlockVoiceMixin", "NoteVoiceCleanupMixin"], "client": ["StudioPitchMixin"], "injectors": {"defaultRequire": 1}}

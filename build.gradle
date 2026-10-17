@@ -1,0 +1,97 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.141'
+}
+version = '0.5.16'
+group = 'dev.musicstudio'
+base { archivesName = 'musicstudio-neoforge-1.21.1' }
+java { toolchain.languageVersion = JavaLanguageVersion.of(21) }
+repositories { mavenCentral() }
+def ldlibJar = file("${gameDir}/mods/ldlib2-neoforge-1.21.1-2.2.42-all.jar")
+def extractLibraries = tasks.register('extractCompileLibraries', Sync) {
+    from(zipTree(ldlibJar)) { include 'META-INF/jarjar/*.jar' }
+    into layout.buildDirectory.dir('compile-libraries')
+}
+neoForge {
+    version = '21.1.252'
+    mods { musicstudio { sourceSet sourceSets.main } }
+    runs {
+        client {
+            client()
+            gameDirectory = file('run')
+            systemProperty 'musicstudio.ffmpeg', file('tools/ffmpeg.exe').absolutePath
+            if (project.hasProperty('reorderSmoke')) {
+                systemProperty 'musicstudio.reorderSmoke', 'true'
+                programArguments.addAll '--width', '1600', '--height', '1000'
+            }
+            if (project.hasProperty('projectFolderSmoke')) {
+                systemProperty 'musicstudio.projectFolderSmoke', 'true'
+                programArguments.addAll '--width', '1600', '--height', '1000'
+            }
+            if (project.hasProperty('studioSmoke')) {
+                systemProperty 'musicstudio.smoke', 'true'
+                programArguments.addAll '--width', '1600', '--height', '1000'
+            }
+            if (project.hasProperty('noteHookSmoke')) {
+                systemProperty 'musicstudio.noteHookSmoke', 'true'
+                programArguments.addAll '--width', '1600', '--height', '1000'
+            }
+            if (project.hasProperty('blueprintSmoke')) {
+                systemProperty 'musicstudio.blueprintSmoke', 'true'
+                programArguments.addAll '--width', '1600', '--height', '1000'
+            }
+            if (project.hasProperty('mediaSmoke')) {
+                systemProperty 'musicstudio.mediaSmoke', 'true'
+                programArguments.addAll '--width', '1600', '--height', '1000'
+            }
+            if (project.hasProperty('audioCapacitySmoke')) {
+                systemProperty 'musicstudio.audioCapacitySmoke', 'true'
+            }
+            if (project.hasProperty('waveformSmoke')) {
+                systemProperty 'musicstudio.waveformSmoke', 'true'
+                programArguments.addAll '--width', '1600', '--height', '1000'
+            }
+        }
+        server { server(); programArgument '--nogui'; gameDirectory = file('run-server') }
+        gameTestServer { type = 'gameTestServer'; systemProperty 'neoforge.enabledGameTestNamespaces', 'musicstudio'; gameDirectory = file('run-gametest') }
+    }
+}
+dependencies {
+    implementation files(ldlibJar)
+    compileOnly files(fileTree(layout.buildDirectory.dir('compile-libraries')) { include '**/*.jar' }).builtBy(extractLibraries)
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.0'
+    testImplementation 'com.google.code.gson:gson:2.10.1'
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.named('jar') { exclude 'dev/musicstudio/testing/**'; exclude 'data/musicstudio/structure/test_room.nbt' }
+test { useJUnitPlatform(); maxHeapSize = '2g'; systemProperty 'musicstudio.ffmpeg', file('tools/ffmpeg.exe').absolutePath }
+tasks.register('installMod') {
+    dependsOn jar
+    doLast {
+        def archive = tasks.jar.archiveFile.get().asFile
+        def destination = file("${gameDir}/mods")
+        def backup = file("${gameDir}/mod-backups/musicstudio")
+        def codecDestination = file("${gameDir}/musicstudio/tools")
+        codecDestination.mkdirs()
+        copy { from 'tools/ffmpeg.exe', 'tools/FFMPEG-LICENSE.txt', 'tools/README.md'; into codecDestination }
+        destination.mkdirs()
+        backup.mkdirs()
+        def staged = new File(destination, archive.name + '.installing')
+        def moved = [:]
+        try {
+            java.nio.file.Files.copy(archive.toPath(), staged.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            fileTree(destination) { include 'musicstudio-neoforge-1.21.1-*.jar'; exclude archive.name }.each { old ->
+                def saved = new File(backup, old.name + '.' + System.currentTimeMillis() + '.bak')
+                java.nio.file.Files.move(old.toPath(), saved.toPath())
+                moved.put(old, saved)
+            }
+            java.nio.file.Files.move(staged.toPath(), new File(destination, archive.name).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        } catch (Exception failure) {
+            moved.each { old, saved -> java.nio.file.Files.move(saved.toPath(), old.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING) }
+            throw new GradleException('安装失败；若游戏占用 JAR，请关闭该实例后重试。旧版已恢复。', failure)
+        } finally {
+            java.nio.file.Files.deleteIfExists(staged.toPath())
+        }
+    }
+}

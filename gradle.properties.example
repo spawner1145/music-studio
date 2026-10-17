@@ -1,0 +1,8 @@
+# Copy this file to gradle.properties and set your local Minecraft instance path.
+org.gradle.jvmargs=-Xmx3G
+org.gradle.daemon=false
+org.gradle.caching=true
+
+# The mods folder must contain ldlib2-neoforge-1.21.1-2.2.42-all.jar.
+# For audio development, place FFmpeg in tools/ffmpeg.exe (see tools/README.md).
+gameDir=D:/path/to/.minecraft/versions/1.21.1-NeoForge_21.1.252
